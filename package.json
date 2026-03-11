@@ -1,0 +1,16 @@
+{
+  "name": "kitesurf-alerts",
+  "version": "1.0.0",
+  "description": "Weekly kitesurf weather alerts via WhatsApp",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "send": "tsx src/index.ts",
+    "dry-run": "tsx src/index.ts --dry-run"
+  },
+  "dependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "twilio": "^5.0.0"
+  }
+}
