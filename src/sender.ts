@@ -35,18 +35,20 @@ export async function sendWhatsApp({
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_WHATSAPP_FROM;
-  const to = process.env.WHATSAPP_TO;
+  const toRaw = process.env.WHATSAPP_TO;
 
-  if (!accountSid || !authToken || !from || !to) {
+  if (!accountSid || !authToken || !from || !toRaw) {
     console.error("❌ Variables d'environnement Twilio manquantes !");
     console.error("Requis :");
     console.error("  TWILIO_ACCOUNT_SID=ACxxxxxxx");
     console.error("  TWILIO_AUTH_TOKEN=xxxxxxx");
     console.error("  TWILIO_WHATSAPP_FROM=whatsapp:+14155238886");
-    console.error("  WHATSAPP_TO=whatsapp:+33612345678");
+    console.error("  WHATSAPP_TO=whatsapp:+33612345678,whatsapp:+33612345679");
     console.error("\n💡 Utilise --dry-run pour tester sans envoyer.");
     process.exit(1);
   }
+
+  const recipients = toRaw.split(",").map((n) => n.trim());
 
   // Dynamic import to avoid requiring twilio when doing dry-run
   const twilio = await import("twilio");
@@ -56,18 +58,20 @@ export async function sendWhatsApp({
   // On découpe si nécessaire
   const chunks = splitMessage(message, 1500);
 
-  for (let i = 0; i < chunks.length; i++) {
-    const chunk =
-      i === 0 ? chunks[i] : `(suite ${i + 1}/${chunks.length})\n\n${chunks[i]}`;
-    await client.messages.create({
-      body: chunk,
-      from,
-      to,
-    });
-    console.log(`✅ Message ${i + 1}/${chunks.length} envoyé à ${to}`);
+  for (const to of recipients) {
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk =
+        i === 0 ? chunks[i] : `(suite ${i + 1}/${chunks.length})\n\n${chunks[i]}`;
+      await client.messages.create({
+        body: chunk,
+        from,
+        to,
+      });
+      console.log(`✅ Message ${i + 1}/${chunks.length} envoyé à ${to}`);
 
-    if (i < chunks.length - 1) {
-      await new Promise((r) => setTimeout(r, 1000));
+      if (i < chunks.length - 1) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
     }
   }
 }

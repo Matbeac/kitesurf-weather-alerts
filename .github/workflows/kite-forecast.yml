@@ -16,14 +16,12 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: kitesurf-alerts/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        working-directory: kitesurf-alerts
         run: npm ci
 
       - name: Send kite forecast via WhatsApp
-        working-directory: kitesurf-alerts
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
