@@ -172,6 +172,22 @@ function getWeekendVerdict(forecasts: SpotForecast[]): string {
   return `🏆 *Verdict week-end :* Fonce à ${best.name} ! ${best.hours}h de vent annoncées, pointes à ${best.maxWind}kts`;
 }
 
+function getKiteSummary(forecasts: SpotForecast[]): string {
+  const parts: string[] = [];
+
+  for (const f of forecasts) {
+    const kitableDays = f.days.filter((d) => d.bestHours.length > 0);
+    if (kitableDays.length === 0) continue;
+
+    // Group consecutive days
+    const dayNames = kitableDays.map((d) => d.dayName.toLowerCase());
+    parts.push(`${f.spot.name} ${dayNames.join("-")}`);
+  }
+
+  if (parts.length === 0) return "😴 *Cette semaine :* Pas de vent sur aucun spot.";
+  return `🪁 *Cette semaine ça kite :* ${parts.join(", ")}`;
+}
+
 function getWeekVerdict(forecasts: SpotForecast[]): string {
   let bestSpot = "";
   let bestHours = 0;
@@ -208,6 +224,10 @@ export function formatWhatsAppMessage(
   // Header
   sections.push(`🪁 *KITE FORECAST — Semaine du ${dateStr}*`);
   sections.push("━━━━━━━━━━━━━━━━━━━━━━━━");
+
+  // Quick summary — the first thing you read
+  sections.push(getKiteSummary(forecasts));
+  sections.push("");
 
   // Weekend verdict first (the most important info)
   sections.push(getWeekendVerdict(forecasts));
